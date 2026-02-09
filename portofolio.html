@@ -379,12 +379,31 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
   <h3 style="font-family:Poppins;font-size:var(--h3);margin:8px 0 12px">Short-form Reels</h3>
   <div class="vgrid reels" aria-label="Reels grid">
     <!-- only 4 shorts as requested -->
-    <div class="vcard"><div class="v-skeleton"></div><video class="reel" src="reel1.mp4" muted playsinline loop preload="metadata"></video></div>
-    <div class="vcard"><div class="v-skeleton"></div><video class="reel" src="reel2.mp4" muted playsinline loop preload="metadata"></video></div>
-    <div class="vcard"><div class="v-skeleton"></div><video class="reel" src="reel3.mp4" muted playsinline loop preload="metadata"></video></div>
-    <div class="vcard"><div class="v-skeleton"></div><video class="reel" src="reel4.mp4" muted playsinline loop preload="metadata"></video></div>
-   <div class="vcard"><div class="v-skeleton"></div><video class="reel" src="reel5.mp4" muted playsinline loop preload="metadata"></video></div>
-  
+   <div class="vcard">
+  <div class="v-skeleton"></div>
+  <video class="reel" src="reel1.mp4" controls playsinline preload="metadata"></video>
+</div>
+
+<div class="vcard">
+  <div class="v-skeleton"></div>
+  <video class="reel" src="reel2.mp4" controls playsinline preload="metadata"></video>
+</div>
+
+<div class="vcard">
+  <div class="v-skeleton"></div>
+  <video class="reel" src="reel3.mp4" controls playsinline preload="metadata"></video>
+</div>
+
+<div class="vcard">
+  <div class="v-skeleton"></div>
+  <video class="reel" src="reel4.mp4" controls playsinline preload="metadata"></video>
+</div>
+
+<div class="vcard">
+  <div class="v-skeleton"></div>
+  <video class="reel" src="reel5.mp4" controls playsinline preload="metadata"></video>
+</div>
+
   </div>
 
   <h3 style="font-family:Poppins;font-size:var(--h3);margin:24px 0 12px">Long-form</h3>
@@ -829,3 +848,4 @@ window.addEventListener('keydown', (e)=>{
 </script>
 </body>
 </html>
+
