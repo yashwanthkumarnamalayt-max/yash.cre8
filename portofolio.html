@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Yash.cre8 — Video Editing & Motion Graphics Portfolio</title>
+<meta name="description" content="Yashwanth Kumar — After Effects video editor. High-retention short-form reels, cinematic long-form, motion graphics.">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ======================================================================================
+   THEME — strictly Black / White / Green
+   ====================================================================================== */
+:root{
+  /* Colors */
+  --bg:#000;                 /* page background (black) */
+  --surface:#0b0b0b;         /* panels/cards */
+  --elev:#0f0f0f;            /* elevated surfaces */
+  --ring:#1a1a1a;            /* subtle borders */
+  --text:#fff;               /* primary text (white) */
+  --muted:#d6d6d6;           /* secondary text (gray/white) */
+  --muter:#aaaaaa;           /* tertiary text */
+  --accent:#22c55e;          /* green */
+  --accent-2:#16a34a;        /* darker green */
+
+  /* Layout */
+  --maxw:1220px;
+  --px:clamp(16px,4vw,28px);
+  --r-xl:24px; --r-lg:18px; --r-md:14px; --r-sm:10px;
+
+  /* Type scale */
+  --h1:clamp(36px,5vw,64px);
+  --h2:clamp(26px,3.2vw,40px);
+  --h3:clamp(18px,2.2vw,24px);
+
+  /* Motion */
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --dur:.5s;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.6; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+img,video{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit}
+
+/* ======================================================================================
+   GLOBAL BACKGROUNDS: (1) Canvas particles (2) Drifting green blobs
+   ====================================================================================== */
+/* Canvas particles layer sits at z-index -3, blobs at -2 */
+#particles{
+  position:fixed; inset:0; z-index:-3; width:100vw; height:100vh; display:block; pointer-events:none;
+  /* fallback solid if canvas fails */
+  background:#000;
+}
+.bg-wrap{position:fixed; inset:0; z-index:-2; background:#000;}
+.blob{
+  position:absolute; width:40vw; height:40vw; border-radius:50%;
+  background:radial-gradient(circle at 35% 35%, rgba(34,197,94,.85), rgba(22,163,74,.35) 45%, transparent 60%);
+  filter:blur(60px); opacity:.42; mix-blend-mode:screen; animation:drift 26s var(--ease) infinite alternate;
+}
+.blob.b2{width:46vw;height:46vw;left:58%;top:8%;animation-duration:30s;opacity:.34}
+.blob.b3{width:30vw;height:30vw;left:8%;top:70%;animation-duration:22s;opacity:.28}
+@keyframes drift{
+  0%{transform:translate(-8%,-6%)}
+  50%{transform:translate(8%,8%) scale(1.05)}
+  100%{transform:translate(-3%,2%) scale(.98)}
+}
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .blob{animation:none;opacity:.18}
+}
+
+/* ======================================================================================
+   LAYOUT HELPERS
+   ====================================================================================== */
+.container{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--px)}
+.grid{display:grid;gap:18px;grid-template-columns:repeat(12,1fr)}
+.col-2{grid-column:span 2}.col-3{grid-column:span 3}.col-4{grid-column:span 4}.col-5{grid-column:span 5}
+.col-6{grid-column:span 6}.col-7{grid-column:span 7}.col-8{grid-column:span 8}.col-12{grid-column:span 12}
+@media (max-width: 1024px){
+  .col-2,.col-3,.col-4{grid-column:span 6}
+  .col-5,.col-6,.col-7,.col-8{grid-column:span 12}
+}
+@media (max-width: 640px){
+  .col-2,.col-3,.col-4,.col-5,.col-6,.col-7,.col-8{grid-column:span 12}
+}
+
+/* ======================================================================================
+   COMPONENTS
+   ====================================================================================== */
+.card{
+  background:linear-gradient(180deg,#101010,#090909); border:1px solid var(--ring);
+  border-radius:var(--r-lg); padding:22px;
+  transition:transform .25s var(--ease), border-color .25s var(--ease), box-shadow .25s var(--ease);
+}
+.card:hover{
+  transform:translateY(-4px);
+  border-color:color-mix(in oklab, var(--accent) 45%, var(--ring));
+  box-shadow:0 16px 60px rgba(34,197,94,.16);
+}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  font-weight:700; padding:12px 18px; border-radius:12px; border:0; cursor:pointer;
+}
+.btn.primary{
+  background:linear-gradient(140deg,var(--accent),var(--accent-2)); color:#000;
+  box-shadow:0 14px 36px rgba(34,197,94,.35);
+}
+.btn.ghost{
+  border:1px solid var(--ring); background:#0c0c0c; color:#f0f0f0d1;
+}
+.btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--ring);border-radius:999px;background:#0d0d0d;color:#e9e9e9;font-size:12px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block}
+
+/* ======================================================================================
+   NAV (sticky) + sheet menu on mobile
+   ====================================================================================== */
+.nav{position:sticky;top:0;z-index:60;backdrop-filter:blur(10px);background:rgba(0,0,0,.9);border-bottom:1px solid var(--ring)}
+.nav-inner{height:72px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:12px;font-family:Poppins;font-weight:700;letter-spacing:.2px;font-size:20px}
+.logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(140deg,var(--accent),var(--accent-2));box-shadow:0 0 0 1px #0f0f0f,0 10px 30px rgba(34,197,94,.35)}
+.links{display:flex;align-items:center;gap:22px}
+.links a{color:#e8e8e8b3;font-size:14px}
+.links a:hover{color:#fff}
+.menu{display:none;width:38px;height:38px;border:1px solid var(--ring);border-radius:10px;place-items:center;background:#0b0b0b}
+.menu svg{width:18px;height:18px}
+@media (max-width:900px){.links{display:none}.menu{display:grid}}
+.sheet{
+  position:fixed; inset:0 0 0 auto; width:min(82vw,360px); background:#0b0b0bcc; backdrop-filter:blur(12px);
+  border-left:1px solid var(--ring); transform:translateX(100%); transition:transform var(--dur) var(--ease);
+  display:flex; flex-direction:column; padding:24px; z-index:70
+}
+.sheet.open{transform:translateX(0)}
+.sheet a{padding:12px 8px;font-size:16px;color:#e7e7e7;border-bottom:1px solid #1a1a1a}
+.sheet .btn{margin-top:16px;align-self:flex-start}
+
+/* ======================================================================================
+   HERO
+   ====================================================================================== */
+.hero{padding:clamp(80px,12vh,140px) 0 clamp(40px,8vh,80px)}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:#0e0e0e;border:1px solid var(--ring);color:#d8d8d8;font-size:13px}
+.title{font-family:Poppins;font-weight:700;letter-spacing:-.02em;font-size:var(--h1);line-height:1.08;margin:16px 0 12px}
+.lead{font-size:clamp(16px,1.6vw,20px);color:#e8e8e8cc}
+.hero-photo{width:min(360px,38vw);aspect-ratio:1/1;border-radius:22px;border:2px solid var(--accent);background:#0b0b0b center/cover no-repeat;box-shadow:0 20px 70px rgba(34,197,94,.18) inset}
+
+/* ======================================================================================
+   ABOUT (with curved wave backdrop)
+   ====================================================================================== */
+.about{position:relative;padding:clamp(60px,10vh,100px) 0}
+.about::before{
+  content:""; position:absolute; inset:0; z-index:-1;
+  background:linear-gradient(to bottom right, rgba(34,197,94,.12), transparent 70%);
+  /* curved wave shape */
+  clip-path:ellipse(140% 70% at 50% 30%);
+}
+.about h2{font-family:Poppins;font-size:var(--h2);margin-bottom:12px}
+.about p{max-width:720px;color:var(--muted)}
+
+/* ======================================================================================
+   SERVICES / STATS / PROCESS
+   ====================================================================================== */
+.card h3{font-family:Poppins;font-size:18px;margin:4px 0 8px}
+.card p{color:#d8d8d8cc;font-size:15px;margin:0}
+
+.stat{background:#0d0d0d;border:1px solid var(--ring);border-radius:var(--r-lg);padding:20px;text-align:center}
+.stat .num{font-family:Poppins;font-size:clamp(28px,3.2vw,40px);color:#86efac}
+.stat .lab{color:#cfcfcf;font-size:14px}
+
+.step{background:#0d0d0d;border:1px solid var(--ring);border-radius:var(--r-md);padding:18px}
+.step .n{width:28px;height:28px;border-radius:8px;background:linear-gradient(140deg,var(--accent),var(--accent-2));color:#000;font-weight:800;display:grid;place-items:center;margin-bottom:8px}
+
+/* ======================================================================================
+   PORTFOLIO (videos with shimmer loader)
+   ====================================================================================== */
+.vgrid{display:grid;gap:18px}
+.vgrid.reels{grid-template-columns:repeat(6,1fr)}
+.vgrid.long{grid-template-columns:repeat(3,1fr)}
+@media (max-width:1200px){.vgrid.reels{grid-template-columns:repeat(3,1fr)}.vgrid.long{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:640px){.vgrid.reels{grid-template-columns:repeat(2,1fr)}.vgrid.long{grid-template-columns:1fr}}
+
+.vcard{position:relative;background:#0f0f0f;border:1px solid var(--ring);border-radius:12px;overflow:hidden;transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+.vcard:hover{transform:translateY(-4px);box-shadow:0 14px 44px rgba(34,197,94,.16)}
+.v-skeleton{position:absolute;inset:0;background:linear-gradient(90deg,#151515 25%,#232323 50%,#151515 75%);background-size:200% 100%;animation:shimmer 1.5s infinite}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.vcard video{opacity:0;transition:opacity .5s;width:100%;height:100%;object-fit:cover;border-radius:12px}
+.reel{aspect-ratio:9/16;background:#0b0b0b}
+.longvid{aspect-ratio:16/9;background:#0b0b0b}
+
+/* ======================================================================================
+   TESTIMONIALS (side-to-side infinite slider)
+   ====================================================================================== */
+.testi-wrap{overflow:hidden;position:relative;margin-top:6px}
+.testi-track{display:flex;gap:18px;will-change:transform;animation:testiscroll 34s linear infinite}
+.testi{min-width:360px;max-width:360px;background:linear-gradient(180deg,#101010,#090909);border:1px solid var(--ring);border-radius:var(--r-lg);padding:18px}
+.quote{color:#eaeaea;font-size:16px;margin-bottom:8px}
+.who{color:#a9a9a9;font-size:14px}
+@keyframes testiscroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@media (prefers-reduced-motion: reduce){.testi-track{animation:none}}
+
+/* ======================================================================================
+   FAQ
+   ====================================================================================== */
+.faq{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:900px){.faq{grid-template-columns:1fr}}
+.faq details{background:#0d0d0d;border:1px solid var(--ring);border-radius:var(--r-lg);overflow:hidden}
+.faq summary{cursor:pointer;list-style:none;padding:16px 18px;display:flex;justify-content:space-between;align-items:center;font-weight:600}
+.faq .a{padding:0 18px 18px;color:#d8d8d8cc;border-top:1px solid #1a1a1a}
+
+/* ======================================================================================
+   CTA / CONTACT / FOOTER
+   ====================================================================================== */
+.cta-band{background:linear-gradient(140deg,color-mix(in oklab,var(--accent) 16%,#0f0f0f),color-mix(in oklab,var(--accent-2) 12%,#0a0a0a));border:1px solid color-mix(in oklab,var(--accent) 16%,var(--ring));border-radius:var(--r-lg);padding:clamp(22px,5vw,34px);display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;box-shadow:0 18px 70px rgba(34,197,94,.12) inset}
+.cta-band h3{font-size:clamp(20px,2.2vw,26px);font-family:Poppins;margin:0}
+
+.form{grid-column:span 7;background:#0e0e0e;border:1px solid var(--ring);border-radius:var(--r-lg);padding:22px}
+.info{grid-column:span 5;background:#0e0e0e;border:1px solid var(--ring);border-radius:var(--r-lg);padding:22px}
+label{font-size:13px;color:#d7d7d7}
+input,textarea,select{width:100%;padding:12px 14px;margin:8px 0 14px;border-radius:12px;border:1px solid #1a1a1a;background:#0b0b0b;color:#fff}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
+.small{font-size:13px;color:var(--muter);margin-top:-8px;margin-bottom:12px}
+
+/* toast */
+.toast{
+  position:fixed; right:20px; bottom:20px; z-index:200; background:#0e0e0e; border:1px solid var(--ring);
+  padding:12px 16px; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,.6); color:var(--muted);
+  display:none; min-width:220px;
+}
+
+/* loader inside button */
+.loading-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,0.08);margin-left:8px;vertical-align:middle;box-shadow:0 6px 18px rgba(34,197,94,.18) inset}
+.loading{animation:blink 1s infinite}
+@keyframes blink{0%{opacity:0.2}50%{opacity:1}100%{opacity:0.2}}
+
+/* footer */
+.footer{border-top:1px solid var(--ring);padding:32px 0 48px;color:#acacac;font-size:14px}
+.footgrid{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:18px}
+.footgrid h5{color:#eaeaea;font-size:14px;margin-bottom:10px;letter-spacing:.2px}
+.footgrid a{color:#cdcdcd;display:block;padding:4px 0}
+.copy{color:#8c8c8c;margin-top:18px;font-size:13px}
+@media (max-width:900px){.footgrid{grid-template-columns:1fr 1fr}}
+@media (max-width:600px){.footgrid{grid-template-columns:1fr}}
+
+/* Sticky mobile CTA button */
+.sticky-action{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:50;display:none}
+.sticky-action .btn{box-shadow:0 10px 24px rgba(34,197,94,.35)}
+@media (max-width:800px){.sticky-action{display:block}}
+
+/* ======================================================================================
+   Reveal on scroll
+   ====================================================================================== */
+.reveal{opacity:0;transform:translateY(12px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.reveal.on{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<!-- ===== Background: Particles Canvas + Glowing Blobs ===== -->
+<canvas id="particles" aria-hidden="true"></canvas>
+<div class="bg-wrap" aria-hidden="true">
+  <div class="blob" style="left:-8%;top:-10%"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+</div>
+
+<!-- ===== NAV ===== -->
+<nav class="nav" aria-label="Primary">
+  <div class="container nav-inner">
+    <a class="brand" href="#top"><span class="logo" aria-hidden="true"></span>Yash.cre8</a>
+    <div class="links" role="menubar">
+      <a href="#about" role="menuitem">About</a>
+      <a href="#services" role="menuitem">Services</a>
+      <a href="#work" role="menuitem">Portfolio</a>
+      <a href="#process" role="menuitem">Process</a>
+      <a href="#testimonials" role="menuitem">Testimonials</a>
+      <a href="#faq" role="menuitem">FAQ</a>
+      <a href="#contact" role="menuitem" class="btn primary" style="padding:10px 14px">Let’s Talk</a>
+    </div>
+    <button class="menu" id="menuBtn" aria-label="Open menu">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="#8f8f8f" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  
+</nav>
+
+<!-- ===== HERO ===== -->
+<header class="hero" id="top">
+  <div class="container grid">
+    <div class="col-7">
+      <span class="eyebrow"><span class="dot"></span> Video Editing & Motion Graphics</span>
+      <h1 class="title">Retention-first edits that make your content go <span style="color:#86efac">viral</span>.</h1>
+      <p class="lead">I’m <b>Yashwanth Kumar</b> — After Effects editor (1 year). I help creators & brands scale with high-impact reels and clean long-form. Strengths: <b>motion graphics</b>, beautiful frames, and pulling your vision to life.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:18px">
+        <a href="#contact" class="btn primary">Start a Project</a>
+        <a href="#work" class="btn ghost">See Work</a>
+      </div>
+    </div>
+    <div class="col-5">
+      <div class="hero-photo" style="background-image:url('your-photo.png')" aria-label="Your photo placeholder"></div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== ABOUT (with curved gradient wave) ===== -->
+<section id="about" class="about">
+  <div class="container grid">
+    <div class="col-6 reveal">
+      <div class="hero-photo" style="background-image:url('your-photo2.jpg')" aria-label="Portrait"></div>
+    </div>
+    <div class="col-6 reveal">
+      <h2>About Me</h2>
+      <p>I’m <b>Yashwanth Kumar</b>, the creator behind <b>Yash.cre8</b>. With 1 year of hands-on experience in Adobe After Effects, I work with creators & brands to craft videos that not only look clean — they perform. I specialize in <b>motion graphics</b>, building beautiful frames, and translating your vision into high-retention edits across reels and long-form.</p>
+      <p>From hooks and captions to color polish and sound, every decision is driven by attention and watch time.</p>
+      <div style="margin-top:14px;display:flex;gap:12px;flex-wrap:wrap">
+        <a href="#work" class="btn primary">View Portfolio</a>
+        <a href="#contact" class="btn ghost">Book a Call</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SERVICES (dense, 6 cards) ===== -->
+<section id="services" class="container">
+  <div class="grid">
+    <div class="col-12" style="display:flex;justify-content:space-between;align-items:end;gap:18px;margin-bottom:8px">
+      <h2 style="font-family:Poppins;font-size:var(--h2);margin:0">Services</h2>
+      <p style="color:var(--muted);max-width:620px;margin:0">Full-stack post for creators & brands. Short-form for speed, long-form for depth—always retention first.</p>
+    </div>
+
+    <article class="card col-4 reveal"><span class="pill"><span class="dot"></span> Short-form</span><h3>Reels / Shorts</h3><p>Hooks, captions, SFX, meme cuts, dynamic timing.</p></article>
+    <article class="card col-4 reveal"><span class="pill"><span class="dot"></span> Long-form</span><h3>YouTube / Podcasts</h3><p>Story edits, A-roll/B-roll, tasteful motion, chapters.</p></article>
+    <article class="card col-4 reveal"><span class="pill"><span class="dot"></span> Ads</span><h3>Commercial</h3><p>Performance creatives, ratios, platform-ready.</p></article>
+
+    <article class="card col-4 reveal"><span class="pill"><span class="dot"></span> Motion</span><h3>Motion Graphics</h3><p>Clean titles, lower-thirds, transitions, infographics.</p></article>
+    <article class="card col-4 reveal"><span class="pill"><span class="dot"></span> Color</span><h3>Look & Tone</h3><p>Skin-friendly grades, brand palettes, crisp whites.</p></article>
+    <article class="card col-4 reveal"><span class="pill"><span class="dot"></span> Audio</span><h3>Sound Polish</h3><p>Noise reduce, EQ, music curation, beat-matched edits.</p></article>
+  </div>
+</section>
+
+<!-- ===== STATS (4 counters) ===== -->
+<section class="container" aria-label="Stats">
+  <div class="grid">
+    <div class="stat col-3 reveal"><div class="num" data-count="120">0</div><div class="lab">Projects Delivered</div></div>
+    <div class="stat col-3 reveal"><div class="num" data-count="60">0</div><div class="lab">Happy Clients</div></div>
+    <div class="stat col-3 reveal"><div class="num" data-count="1">0</div><div class="lab">Year Experience</div></div>
+    <div class="stat col-3 reveal"><div class="num" data-count="25">0</div><div class="lab">Viral Posts</div></div>
+  </div>
+</section>
+<!-- ===== PROCESS (6 steps) ===== -->
+<section id="process" class="container">
+  <div class="grid">
+    <div class="col-12" style="display:flex;justify-content:space-between;align-items:end;gap:18px;margin-bottom:8px">
+      <h2 style="font-family:Poppins;font-size:var(--h2);margin:0">Process</h2>
+      <p style="color:var(--muted);max-width:620px;margin:0">Simple pipeline to keep speed high & feedback tight.</p>
+    </div>
+    <div class="step col-2 reveal"><div class="n">1</div><b>Brief</b><br/>Goals, audience, brand tone, assets.</div>
+    <div class="step col-2 reveal"><div class="n">2</div><b>Hook</b><br/>Open strong, define pacing & structure.</div>
+    <div class="step col-2 reveal"><div class="n">3</div><b>Cut 1</b><br/>Rough timing, caption style test.</div>
+    <div class="step col-2 reveal"><div class="n">4</div><b>MGFX</b><br/>Titles, transitions, animated accents.</div>
+    <div class="step col-2 reveal"><div class="n">5</div><b>Polish</b><br/>Color, audio clean, SFX, QC.</div>
+    <div class="step col-2 reveal"><div class="n">6</div><b>Deliver</b><br/>Ratios, exports, thumbnails (opt.).</div>
+  </div>
+</section>
+
+<!-- ===== PORTFOLIO ===== -->
+<section id="work" class="container">
+  <div class="grid">
+    <div class="col-12" style="display:flex;justify-content:space-between;align-items:end;gap:18px;margin-bottom:8px">
+      <h2 style="font-family:Poppins;font-size:var(--h2);margin:0">Selected Work</h2>
+      <p style="color:var(--muted);max-width:620px;margin:0">Reels (9:16) + Long-form (16:9).</p>
+    </div>
+  </div>
+
+  <h3 style="font-family:Poppins;font-size:var(--h3);margin:8px 0 12px">Short-form Reels</h3>
+  <div class="vgrid reels" aria-label="Reels grid">
+    <!-- only 4 shorts as requested -->
+    <div class="vcard"><div class="v-skeleton"></div><video class="reel" src="reel1.mp4" muted playsinline loop preload="metadata"></video></div>
+    <div class="vcard"><div class="v-skeleton"></div><video class="reel" src="reel2.mp4" muted playsinline loop preload="metadata"></video></div>
+    <div class="vcard"><div class="v-skeleton"></div><video class="reel" src="reel3.mp4" muted playsinline loop preload="metadata"></video></div>
+    <div class="vcard"><div class="v-skeleton"></div><video class="reel" src="reel4.mp4" muted playsinline loop preload="metadata"></video></div>
+   <div class="vcard"><div class="v-skeleton"></div><video class="reel" src="reel5.mp4" muted playsinline loop preload="metadata"></video></div>
+  
+  </div>
+
+  <h3 style="font-family:Poppins;font-size:var(--h3);margin:24px 0 12px">Long-form</h3>
+  <div class="vgrid long" aria-label="Long-form grid">
+    <!-- only 1 long video -->
+    <div class="vcard"><div class="v-skeleton"></div><video class="longvid" src="long1.mp4" muted playsinline loop preload="metadata"></video></div>
+    <div class="vcard"><div class="v-skeleton"></div><video class="longvid" src="long2.mp4" muted playsinline loop preload="metadata"></video></div>
+  
+  </div>
+</section>
+
+<!-- ===== TESTIMONIALS (animated side-to-side) ===== -->
+<section id="testimonials" class="container">
+  <div style="display:flex;justify-content:space-between;align-items:end;gap:18px;margin-bottom:8px">
+    <h2 style="font-family:Poppins;font-size:var(--h2);margin:0">What Clients Say</h2>
+    <p style="color:var(--muted);max-width:620px;margin:0">Real feedback from creators & brands I’ve worked with.</p>
+  </div>
+  <div class="testi-wrap" aria-label="Testimonials slider">
+    <div class="testi-track">
+      <!-- sample testimonials -->
+      <article class="testi"><div class="quote">“Reels went viral within a week — clean captions, crisp pacing.”</div><div class="who">— Onlytradertelugu, full time Trader</div></article>
+      <article class="testi"><div class="quote">“Fast turnarounds and on-brand motion. Our CPA dropped meaningfully.”</div><div class="who">— Hello teja, Youtuber</div></article>
+      <article class="testi"><div class="quote">“Yash pulled a story out of chaos. Our campaign smashed engagement.”</div><div class="who">—Chanikya, Creator</div></article>
+      <article class="testi"><div class="quote">“My YouTube edits look cinematic now. Great communication.”</div><div class="who">— Deva, Creator</div></article>
+      <article class="testi"><div class="quote">“Delivered 24-hour reels without sacrificing quality.”</div><div class="who">— Kavya, Influencer</div></article>
+      <article class="testi"><div class="quote">“Intentional frames and tasteful transitions — strong eye for motion.”</div><div class="who">— Surya,Creator</div></article>
+      <!-- duplicate for smooth loop -->
+      <article class="testi"><div class="quote">“Reels went viral within a week — clean captions, crisp pacing.”</div><div class="who">— Onlytradertelugu, full time Trader</div></article>
+      <article class="testi"><div class="quote">“Fast turnarounds and on-brand motion. Our CPA dropped meaningfully.”</div><div class="who">— Hello teja, Youtuber</div></article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ (2 columns) ===== -->
+<section id="faq" class="container">
+  <div class="grid">
+    <div class="col-12" style="display:flex;justify-content:space-between;align-items:end;gap:18px;margin-bottom:8px">
+      <h2 style="font-family:Poppins;font-size:var(--h2);margin:0">FAQ</h2>
+      <p style="color:var(--muted);max-width:620px;margin:0">Basics that speed up our collaboration.</p>
+    </div>
+  </div>
+
+  <div class="faq">
+    <div>
+      <details class="reveal"><summary>What files do you accept?</summary><div class="a">Drive or WeTransfer. Prefer ProRes/high-bit MP4, WAV, brand assets (fonts/logos).</div></details>
+      <details class="reveal"><summary>Turnaround time?</summary><div class="a">Reels: 24–72 hrs depending on volume. Long-form: 3–7 days. Rush available.</div></details>
+      <details class="reveal"><summary>Do you add captions?</summary><div class="a">Yes — punchy styles, brand fonts, on-beat highlights.</div></details>
+    </div>
+    <div>
+      <details class="reveal"><summary>How are revisions handled?</summary><div class="a">Timestamped notes (Frame.io/Drive). Rounds per plan; extra rounds billed hourly.</div></details>
+      <details class="reveal"><summary>Do you do thumbnails?</summary><div class="a">Optional add-on: thumbnail design + A/B variants.</div></details>
+      <details class="reveal"><summary>Payment & contract?</summary><div class="a">50% to start, 50% on delivery. Retainers available.</div></details>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA STRIP ===== -->
+<section class="container">
+  <div class="cta-band reveal">
+    <h3>Ready to launch your next video?</h3>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <a href="#contact" class="btn primary">Book a Call</a>
+      <a href="#work" class="btn ghost">View Portfolio</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTACT ===== -->
+<section id="contact" class="container">
+  <div class="grid">
+    <form id="contactForm" class="form reveal" onsubmit="handleSubmit(event)">
+      <h3 style="font-family:Poppins;margin:0 0 10px">Let’s Talk</h3>
+      <label for="name">Name</label>
+      <input id="name" name="name" required placeholder="Your name" />
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" required placeholder="you@example.com" />
+      <label for="phone">Phone</label>
+      <input id="phone" name="phone" placeholder="+91 9xxxxxxxxx" />
+      <label for="instagram">Instagram</label>
+      <input id="instagram" name="instagram" placeholder="@yash.namala" value="@yash.namala" />
+      <div class="small">Instagram is auto-filled with your handle; user can change it when sending.</div>
+      <label for="message">Message</label>
+      <textarea id="message" name="message" rows="5" required placeholder="Tell me about the project"></textarea>
+      <button id="submitBtn" class="btn primary" type="submit">Send <span id="btnLoader" class="loading-dot" style="display:none"></span></button>
+    </form>
+    <div class="info reveal">
+      <h3 style="font-family:Poppins;margin:0 0 10px">Contact</h3>
+      <p>📧 <a href="mailto:yashwanthkumar7842@gmail.com">yashwanthkumar7842@gmail.com</a></p>
+      <p>📱 <a href="tel:+917842888949">+91 7842888949</a></p>
+      <p>📍 Hyderabad • Remote worldwide</p>
+      <div style="margin-top:12px"><span class="pill"><span class="dot"></span> Availability</span> <span style="margin-left:8px;color:#cfcfcf">Slots open this month</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- toast -->
+<div id="toast" class="toast"></div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footgrid">
+      <div>
+        <div class="brand" style="margin-bottom:10px"><div class="logo"></div>Yash.cre8</div>
+        <p style="color:#cfcfcf;max-width:520px">Video editing & motion for brands and creators. After Effects specialist focused on retention and clean motion graphics.</p>
+      </div>
+      <div>
+        <h5>Services</h5>
+        <a href="#services">Reels & Shorts</a>
+        <a href="#services">YouTube & Podcasts</a>
+        <a href="#services">UGC & Ads</a>
+        <a href="#services">Motion Graphics</a>
+      </div>
+      <div>
+        <h5>Company</h5>
+        <a href="#about">About</a>
+        <a href="#process">Process</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <a href="mailto:yashwanthkumar7842@gmail.com">Email</a>
+        <a href="tel:+917842888949">Call</a>
+        <a href="https://script.google.com/macros/s/AKfycbz0om4tiSJNJAixJn1OYIfuKvVmg7-jxcvjKo5cK1R2bi8UeuoRV9qHNgvzngSqUsfTNA/exec" target="_blank" rel="noopener">Form</a>
+      </div>
+    </div>
+    <div class="copy">© 2025 Yash.cre8. All rights reserved.</div>
+  </div>
+</footer>
+
+<!-- ===== STICKY MOBILE CTA ===== -->
+<div class="sticky-action">
+  <a href="#contact" class="btn primary">Start a Project</a>
+</div>
+
+<script>
+/* =============================================================================
+   CONFIG
+   ============================================================================= */
+/*
+  Google Apps Script web app URL (you provided this).
+  Make sure your Apps Script includes doPost (and preferably doGet)
+  and that it's deployed as "Anyone, even anonymous".
+*/
+const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbyQHlBCdVWWZg8nfO4Z8lIa1AIVY6S3HJzNDLayomOArG1ci2UF083mkIxEw-dmN2bmsA/exec";
+
+/* =============================================================================
+   HELPERS: toast
+   ============================================================================= */
+function showToast(msg, isError=false, timeout=4200){
+  const t = document.getElementById('toast');
+  if(!t) return;
+  t.style.display = "block";
+  t.style.background = isError ? "#2b0f0f" : "#0e0e0e";
+  t.style.borderColor = isError ? "rgba(255,80,80,.16)" : "var(--ring)";
+  t.innerText = msg;
+  clearTimeout(t._hide);
+  t._hide = setTimeout(()=>{ t.style.display="none"; }, timeout);
+}
+
+/* =============================================================================
+   MOBILE SHEET NAV
+   ============================================================================= */
+const sheet = document.getElementById('sheet');
+const btn = document.getElementById('menuBtn');
+if(btn){ btn.addEventListener('click', ()=> sheet.classList.toggle('open')); }
+sheet?.addEventListener('click', e=>{ if(e.target.tagName==='A') sheet.classList.remove('open')});
+
+/* =============================================================================
+   SMOOTH SCROLL LINKS
+   ============================================================================= */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click', e=>{
+    const id=a.getAttribute('href');
+    if(id && id.length>1){
+      e.preventDefault();
+      document.querySelector(id)?.scrollIntoView({behavior:'smooth'});
+    }
+  });
+});
+
+/* =============================================================================
+   REVEAL ON SCROLL
+   ============================================================================= */
+const io=new IntersectionObserver((ents)=>{ ents.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('on'); io.unobserve(e.target);} })},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* =============================================================================
+   STATS COUNTERS
+   ============================================================================= */
+function animateCount(el){
+  const end=+el.dataset.count||0; let cur=0; const step=Math.max(1,Math.ceil(end/60));
+  const t=setInterval(()=>{ cur+=step; if(cur>=end){cur=end; clearInterval(t)} el.textContent=cur },16);
+}
+document.querySelectorAll('.stat .num').forEach(el=>{
+  const sIO=new IntersectionObserver(es=>{ es.forEach(e=>{ if(e.isIntersecting){ animateCount(el); sIO.disconnect(); }})});
+  sIO.observe(el);
+});
+
+/* =============================================================================
+   VIDEO SHIMMER → show skeleton until loaded, then show video
+   ============================================================================= */
+document.querySelectorAll(".vcard").forEach(card=>{
+  const v=card.querySelector("video");
+  const sk=card.querySelector(".v-skeleton");
+  if(!v) return;
+  const ready = () => {
+    if(sk) sk.style.display="none";
+    v.style.opacity="1";
+    try{ v.playbackRate=1.5 }catch(e){}
+    v.muted=true; v.loop=true; v.playsInline=true;
+    // don't force-play on mobile; play when interacted or visible
+    v.play().catch(()=>{ /* ignore gesture errors */ });
+  };
+  if(v.readyState>=2){ ready(); } else { v.addEventListener("loadeddata", ready, {once:true}); }
+});
+
+/* =============================================================================
+   PORTFOLIO HOVER PREVIEW (play on hover, pause/reset on leave)
+   ============================================================================= */
+document.querySelectorAll(".vcard video").forEach(video=>{
+  // For desktops: play on mouseenter
+  video.addEventListener("mouseenter", ()=> {
+    try{ video.play(); }catch(e){}
+  });
+  video.addEventListener("mouseleave", ()=> {
+    try{ video.pause(); video.currentTime = 0; }catch(e){}
+  });
+  // For touch devices: tap toggles playback
+  video.addEventListener("click", ()=> {
+    if(video.paused){ video.play(); } else { video.pause(); video.currentTime = 0; }
+  });
+});
+
+/* =============================================================================
+   CONTACT FORM: send to Google Apps Script AND open mailto with autofill
+   - Process:
+     1) POST to GAS_ENDPOINT with JSON
+     2) If JSON fails, fallback to form-encoded POST
+     3) Always open mail client with prefilled message
+   ============================================================================= */
+const form = document.getElementById('contactForm');
+const submitBtn = document.getElementById('submitBtn');
+const btnLoader = document.getElementById('btnLoader');
+
+async function postToGAS(data){
+  // Try JSON first and accept text responses too (GAS sometimes replies plain text)
+  try{
+    const resp = await fetch(GAS_ENDPOINT, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(data)
+    });
+    if(!resp.ok){
+      const text = await resp.text().catch(()=>"");
+      throw new Error('GAS POST failed: ' + (text || resp.status));
+    }
+    // Try parse JSON, but if not JSON return text
+    const t = await resp.text();
+    try{ return JSON.parse(t); } catch(e){ return {ok:true, text:t}; }
+  }catch(err){
+    // Try fallback as form-encoded (some GAS set up to accept x-www-form-urlencoded)
+    try{
+      const formBody = Object.keys(data).map(k=>encodeURIComponent(k)+"="+encodeURIComponent(data[k])).join("&");
+      const resp2 = await fetch(GAS_ENDPOINT, {
+        method:'POST',
+        mode:'cors',
+        headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
+        body: formBody
+      });
+      if(!resp2.ok){
+        const txt = await resp2.text().catch(()=>"");
+        throw new Error('Fallback POST failed: ' + (txt || resp2.status));
+      }
+      const t2 = await resp2.text().catch(()=>"");
+      try{ return JSON.parse(t2); }catch(e){ return {ok:true, text:t2}; }
+    }catch(err2){
+      throw err2;
+    }
+  }
+}
+
+function openMailClient(data){
+  // Build mailto with subject and body including phone + instagram
+  const to = "yashwanthkumar7842@gmail.com";
+  const subject = encodeURIComponent("New Project Inquiry — " + (data.name || ""));
+  const bodyLines = [
+    "Name: " + (data.name || ""),
+    "Email: " + (data.email || ""),
+    "Phone: " + (data.phone || ""),
+    "Instagram: " + (data.instagram || ""),
+    "",
+    "Message:",
+    (data.message || "")
+  ];
+  const body = encodeURIComponent(bodyLines.join("\n"));
+  // open mail client in new window so browser doesn't block where possible
+  window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+}
+
+let currentSubmitting = false;
+
+async function handleSubmit(e){
+  e.preventDefault();
+  if(currentSubmitting) return;
+  currentSubmitting = true;
+  submitBtn.disabled = true;
+  if(btnLoader){ btnLoader.style.display = "inline-block"; btnLoader.classList.add('loading'); }
+
+  const data = {
+    timestamp: new Date().toISOString(),
+    name: document.getElementById('name').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    instagram: document.getElementById('instagram').value.trim() || '@yash.namala',
+    message: document.getElementById('message').value.trim(),
+    source: window.location.href
+  };
+
+  // Basic validation
+  if(!data.name || !data.email || !data.message){
+    showToast("Please fill name, email and message.", true);
+    currentSubmitting = false;
+    submitBtn.disabled = false;
+    if(btnLoader){ btnLoader.style.display = "none"; btnLoader.classList.remove('loading'); }
+    return;
+  }
+
+  // 1) POST to Google Apps Script
+  try{
+    const result = await postToGAS(data);
+    // If result indicates success, show positive toast; many GAS setups reply with plain text "Success"
+    if(result && (result.status === "success" || result.ok || (typeof result === "object" && result.text && result.text.toLowerCase().includes("success")))){
+      showToast("Saved to sheet ✅. Opening mail client…");
+    } else {
+      // When GAS reply is ambiguous, still treat as success but show server text
+      showToast("Saved to sheet (server returned a response). Opening mail client…");
+    }
+  }catch(err){
+    console.error("GAS save error:", err);
+    // Show non-blocking error toast, proceed to open mail client
+    showToast("Could not save to sheet (network/CORS). Still opening mail client.", true);
+  }
+
+  // 2) Open mail client (pre-filled email with phone & insta)
+  try{
+    openMailClient(data);
+  }catch(err){
+    console.error("mailto open failed", err);
+    showToast("Could not open mail client automatically. Please email: yashwanthkumar7842@gmail.com", true);
+  }
+
+  // Reset UI after short delay (not clearing form so user can keep copy)
+  setTimeout(()=>{
+    currentSubmitting = false;
+    submitBtn.disabled = false;
+    if(btnLoader){ btnLoader.style.display = "none"; btnLoader.classList.remove('loading'); }
+  }, 900);
+}
+
+/* =============================================================================
+   BACKGROUND PARTICLES (subtle green dots)
+   - Respects reduce-motion (draws static frame only)
+   - Loops on RAF, throttled for performance
+   ============================================================================= */
+(function(){
+  const canvas = document.getElementById('particles');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d', { alpha: true });
+  let w, h, dpr, particles=[], raf, reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function resize(){
+    dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    w = canvas.width = Math.floor(innerWidth * dpr);
+    h = canvas.height = Math.floor(innerHeight * dpr);
+    canvas.style.width = innerWidth + 'px';
+    canvas.style.height = innerHeight + 'px';
+    init();
+    if(reduce){ draw(); }
+  }
+
+  function init(){
+    const count = Math.round((innerWidth * innerHeight) / 18000); // density
+    particles = new Array(count).fill(0).map(() => ({
+      x: Math.random()*w,
+      y: Math.random()*h,
+      vx: (Math.random()-.5)*0.12*dpr,
+      vy: (Math.random()-.5)*0.12*dpr,
+      r: (Math.random()*1.6+0.6)*dpr,
+      a: Math.random()*0.45 + 0.15
+    }));
+  }
+
+  function step(){
+    for(const p of particles){
+      p.x += p.vx; p.y += p.vy;
+      if(p.x<-20 || p.x>w+20) p.vx*=-1;
+      if(p.y<-20 || p.y>h+20) p.vy*=-1;
+    }
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    // dots
+    for(const p of particles){
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(34,197,94,${p.a})`;
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fill();
+    }
+    // faint connections
+    for(let i=0;i<particles.length;i++){
+      for(let j=i+1;j<particles.length;j++){
+        const a=particles[i], b=particles[j];
+        const dx=a.x-b.x, dy=a.y-b.y; const dist=dx*dx+dy*dy;
+        if(dist < (80*dpr)*(80*dpr)){
+          const op = 0.06 * (1 - dist/((80*dpr)*(80*dpr)));
+          ctx.strokeStyle = `rgba(34,197,94,${op})`;
+          ctx.lineWidth = 0.6*dpr;
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        }
+      }
+    }
+  }
+
+  function loop(){
+    step(); draw(); raf = requestAnimationFrame(loop);
+  }
+
+  window.addEventListener('resize', resize, { passive:true });
+  resize();
+  if(!reduce){ loop(); }
+})();
+
+/* =============================================================================
+   Accessibility: close mobile sheet with escape
+   ============================================================================= */
+window.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape') sheet?.classList.remove('open');
+});
+</script>
+</body>
+</html>
